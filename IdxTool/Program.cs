@@ -40,7 +40,7 @@ namespace IdxTool {
             string[] Files = GetFiles(arg, "*.bin|*.zlib|*.str");
             long[] DecompressedSizes = new long[Files.Length];
             TextReader Info = File.OpenText(arg + "\\Packget Info.txt");
-            PerareFiles(ref Files,);
+            PerareFiles(ref Files);
             StructWriter IDX = new StructWriter(new StreamWriter(IDXPath).BaseStream);
             Stream BIN = new StreamWriter(BINPath).BaseStream;
             Console.WriteLine("Initialized...");
