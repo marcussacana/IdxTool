@@ -38,9 +38,9 @@ namespace IdxTool {
             string IDXPath = arg + ".IDX";
             string BINPath = arg + ".BIN";
             string[] Files = GetFiles(arg, "*.bin|*.zlib|*.str");
-            long[] DecompressedSizes;
+            long[] DecompressedSizes = new long[Files.Length];
             TextReader Info = File.OpenText(arg + "\\Packget Info.txt");
-            PerareFiles(ref Files, out DecompressedSizes);
+            PerareFiles(ref Files,);
             StructWriter IDX = new StructWriter(new StreamWriter(IDXPath).BaseStream);
             Stream BIN = new StreamWriter(BINPath).BaseStream;
             Console.WriteLine("Initialized...");
@@ -74,9 +74,8 @@ namespace IdxTool {
                 Result = Result.Union(Directory.GetFiles(Dir, pattern)).ToArray();
             return Result;
         }
-        private static void PerareFiles(ref string[] files, out long[] DecompressedSizes) {
+        private static void PerareFiles(ref string[] files) {
             int[] Keys = new int[files.Length];
-            DecompressedSizes = new long[files.Length];
             for (int i = 0; i < files.Length; i++) {
                 string FN = Path.GetFileNameWithoutExtension(files[i]);
                 try {
