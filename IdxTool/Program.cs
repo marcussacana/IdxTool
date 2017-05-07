@@ -37,7 +37,7 @@ namespace IdxTool {
                 arg = arg.Substring(0, arg.Length - 1);
             string IDXPath = arg + ".IDX";
             string BINPath = arg + ".BIN";
-            string[] Files = GetFiles(arg, "*.bin|*.zlib|*.str");
+            string[] Files = GetFiles(arg, "*.bin|*.zlib|*.strs|*.str");
             long[] DecompressedSizes = new long[Files.Length];
             TextReader Info = File.OpenText(arg + "\\Packget Info.txt");
             PerareFiles(ref Files);
@@ -109,8 +109,10 @@ namespace IdxTool {
                 string FN = i.ToString("X8");
                 if (Entry.IsCompressed)
                     FN += ".zlib";
-                else if (IsString(BIN, Entry.CompressedSize))
-                    FN += ".str";
+                else if (IsStringPackget(BIN))
+                    FN += ".strs";
+                else if (IsString(BIN))
+                    FN += "str";
                 else
                     FN += ".bin";
                 if (Entry.IsCompressed)
@@ -138,23 +140,35 @@ namespace IdxTool {
             Console.WriteLine("Packget Extracted.");
         }
 
-        private static bool IsString(Stream BIN, long Length) {
+        private static bool IsStringPackget(Stream BIN) {
             long Pointer = BIN.Position;
-            if (Length < 0x18)
-                return false;
             try {
                 BinaryReader Reader = new BinaryReader(BIN);
                 Reader.ReadUInt32();
-                Reader.BaseStream.Seek(Reader.ReadUInt32(), SeekOrigin.Current);
-                Reader.ReadUInt32();
-                int v1 = Reader.ReadInt32();
-                int v2 = Reader.ReadInt32();
+                Reader.BaseStream.Seek(Reader.ReadUInt32() - 8, SeekOrigin.Current);
+                uint sig = Reader.ReadUInt32();
                 BIN.Position = Pointer;
-                if (v1 == 0x14 && v2 == 0x00)
+                if (sig == 0x00134C58)
                     return true;
                 else
                     return false;
             }catch {
+                BIN.Position = Pointer;
+                return false;
+            }
+        }
+        private static bool IsString(Stream BIN) {
+            long Pointer = BIN.Position;
+            try {
+                BinaryReader Reader = new BinaryReader(BIN);
+                uint sig = Reader.ReadUInt32();
+                BIN.Position = Pointer;
+                if (sig == 0x00134C58)
+                    return true;
+                else
+                    return false;
+            }
+            catch {
                 BIN.Position = Pointer;
                 return false;
             }
